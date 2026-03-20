@@ -14,9 +14,13 @@ services:
       - sqlite-data:/app/data
     environment:
       - DATABASE_URL=sqlite:///./data/eurowindows.db
-      - TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN
-      - TELEGRAM_CHAT_ID=TELEGRAM_CHAT_ID
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+     
     healthcheck:
+
+
+  
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 10s
       timeout: 5s
