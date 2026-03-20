@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  # ─── FastAPI Backend ───────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eurowindows-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite-data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/eurowindows.db
+      - TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN
+      - TELEGRAM_CHAT_ID=TELEGRAM_CHAT_ID
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─── Next.js Frontend ──────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - BACKEND_URL=http://backend:8000
+    container_name: eurowindows-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - BACKEND_URL=http://backend:8000
+
+  # ─── Nginx Reverse Proxy (production) ──────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: eurowindows-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  sqlite-data:
+    driver: local
