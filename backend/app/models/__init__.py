@@ -1,1 +1,1 @@
-from .models import WindowType, WindowConfiguration, Order, Appointment, ContactRequest
+from .models import WindowType, WindowConfiguration, Order, Appointment, ContactRequest, Review

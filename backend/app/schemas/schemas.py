@@ -187,3 +187,43 @@ class PriceResult(BaseModel):
     quantity: int
     total_price: float
     breakdown: dict
+
+class ReviewCreate(BaseModel):
+    name: str
+    city: Optional[str] = None
+    rating: int = 5
+    text: str
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):
+        if not v or not v.strip():
+            raise ValueError("Введите имя")
+        return v.strip()
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, v):
+        if not v or len(v.strip()) < 10:
+            raise ValueError("Отзыв должен содержать минимум 10 символов")
+        return v.strip()
+
+    @field_validator("rating")
+    @classmethod
+    def validate_rating(cls, v):
+        if v < 1 or v > 5:
+            raise ValueError("Оценка должна быть от 1 до 5")
+        return v
+
+
+class ReviewOut(BaseModel):
+    id: int
+    name: str
+    city: Optional[str] = None
+    rating: int
+    text: str
+    is_approved: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

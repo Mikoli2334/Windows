@@ -7,6 +7,7 @@ import { Phone, Menu, X, ChevronRight } from 'lucide-react';
 const NAV_ITEMS = [
   { href: '#advantages', label: 'Преимущества' },
   { href: '#types', label: 'Типы окон' },
+  { href: '#services', label: 'Услуги' },
   { href: '#constructor', label: 'Конструктор' },
   { href: '#process', label: 'Как мы работаем' },
   { href: '#appointment', label: 'Запись' },
@@ -36,13 +37,18 @@ export default function Header() {
         }`}
       >
         <div className="section-container flex items-center justify-between">
-          {/* Logo */}
           <a href="#" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10">
               <svg viewBox="0 0 40 40" className="w-full h-full">
                 <rect
-                  x="4" y="4" width="32" height="32" rx="4"
-                  fill="none" stroke="url(#logoGrad)" strokeWidth="2"
+                  x="4"
+                  y="4"
+                  width="32"
+                  height="32"
+                  rx="4"
+                  fill="none"
+                  stroke="url(#logoGrad)"
+                  strokeWidth="2"
                 />
                 <line x1="20" y1="4" x2="20" y2="36" stroke="url(#logoGrad)" strokeWidth="1.5" />
                 <line x1="4" y1="20" x2="36" y2="20" stroke="url(#logoGrad)" strokeWidth="1.5" />
@@ -66,7 +72,6 @@ export default function Header() {
             </div>
           </a>
 
-          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <a
@@ -79,7 +84,6 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* CTA + Phone */}
           <div className="hidden lg:flex items-center gap-4">
             <a
               href="tel:+375291234567"
@@ -94,7 +98,6 @@ export default function Header() {
             </a>
           </div>
 
-          {/* Mobile menu button */}
           <button
             className="lg:hidden p-2 text-gray-700"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -105,9 +108,6 @@ export default function Header() {
         </div>
       </motion.header>
 
-     
-
-      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -131,6 +131,7 @@ export default function Header() {
                 </motion.a>
               ))}
             </nav>
+
             <div className="mt-8 space-y-4">
               <a
                 href="tel:+375291234567"

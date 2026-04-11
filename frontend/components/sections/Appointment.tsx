@@ -14,23 +14,15 @@ const APPOINTMENT_TYPES = [
   { value: 'installation', label: 'Установка', desc: 'Монтаж окон' },
 ];
 
-function generateDates(): { date: Date; label: string; dayName: string }[] {
-  const dates = [];
-  const now = new Date();
-  const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-  const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+function formatSelectedDateLabel(date: Date | null): string {
+  if (!date) return '';
 
-  for (let i = 1; i <= 14; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + i);
-    if (d.getDay() === 0) continue; // воскресенье пропускаем
-    dates.push({
-      date: d,
-      label: `${d.getDate()} ${months[d.getMonth()]}`,
-      dayName: dayNames[d.getDay()],
-    });
-  }
-  return dates;
+  return date.toLocaleDateString('ru-RU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 function formatApiError(err: any): string {
@@ -74,10 +66,9 @@ export default function Appointment() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const dates = generateDates();
-
   useEffect(() => {
     if (!selectedDate) return;
+
     const dateStr = selectedDate.toISOString().split('T')[0];
     setLoadingSlots(true);
     setSelectedTime(null);
@@ -88,7 +79,11 @@ export default function Appointment() {
       .catch(() => {
         const fallback: TimeSlot[] = [];
         for (let h = 9; h < 19; h++) {
-          fallback.push({ time: `${h.toString().padStart(2, '0')}:00`, available: true, booked_count: 0 });
+          fallback.push({
+            time: `${h.toString().padStart(2, '0')}:00`,
+            available: true,
+            booked_count: 0,
+          });
         }
         setSlots(fallback);
       })
@@ -106,7 +101,6 @@ export default function Appointment() {
       const appointmentDate = new Date(selectedDate);
       appointmentDate.setHours(hours, mins, 0, 0);
 
-      // 1) создаём запись в БД (как было)
       await api.createAppointment({
         client_name: formData.name,
         client_phone: formData.phone,
@@ -118,7 +112,6 @@ export default function Appointment() {
         notes: formData.notes || undefined,
       });
 
-      // 2) шлём уведомление папе в Telegram
       await api.sendAppointmentLead({
         name: formData.name.trim(),
         phone: formData.phone.trim(),
@@ -167,8 +160,12 @@ export default function Appointment() {
 
       <div className="section-container">
         <AnimateIn className="text-center mb-12">
-          <span className="text-xs font-display font-semibold tracking-[0.2em] uppercase text-green-600 mb-4 block">Запись</span>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-gray-900 mb-4">Записаться на замер</h2>
+          <span className="text-xs font-display font-semibold tracking-[0.2em] uppercase text-green-600 mb-4 block">
+            Запись
+          </span>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-gray-900 mb-4">
+            Записаться на замер
+          </h2>
           <p className="text-gray-600 max-w-xl mx-auto">Выберите удобную дату и время — замер бесплатный</p>
         </AnimateIn>
 
@@ -184,7 +181,6 @@ export default function Appointment() {
 
             <div className="p-8">
               <AnimatePresence mode="wait">
-                {/* Step 0 */}
                 {step === 0 && (
                   <motion.div
                     key="s0"
@@ -219,22 +215,28 @@ export default function Appointment() {
                       <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                         <Calendar className="w-4 h-4" /> Выберите дату
                       </label>
-                      <div className="flex gap-2 overflow-x-auto pb-2">
-                        {dates.map((d, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setSelectedDate(d.date)}
-                            className={`flex-shrink-0 w-16 py-3 rounded-xl border text-center transition-all duration-300 ${
-                              selectedDate?.toDateString() === d.date.toDateString()
-                                ? 'bg-green-50 border-green-500/50 text-green-700'
-                                : 'border-gray-200 text-gray-600 hover:border-green-300'
-                            }`}
-                          >
-                            <div className="text-[10px] opacity-50">{d.dayName}</div>
-                            <div className="font-display font-semibold text-sm">{d.label}</div>
-                          </button>
-                        ))}
-                      </div>
+
+                      <input
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
+                        onChange={(e) => {
+                          if (!e.target.value) {
+                            setSelectedDate(null);
+                            return;
+                          }
+
+                          const picked = new Date(`${e.target.value}T12:00:00`);
+                          setSelectedDate(picked);
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-green-500 focus:outline-none transition-colors"
+                      />
+
+                      {selectedDate && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          Выбрано: {formatSelectedDateLabel(selectedDate)}
+                        </p>
+                      )}
                     </div>
 
                     {selectedDate && (
@@ -258,8 +260,8 @@ export default function Appointment() {
                                   !slot.available
                                     ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
                                     : selectedTime === slot.time
-                                    ? 'bg-green-50 border border-green-500/50 text-green-700'
-                                    : 'border border-gray-200 text-gray-600 hover:border-green-300'
+                                      ? 'bg-green-50 border border-green-500/50 text-green-700'
+                                      : 'border border-gray-200 text-gray-600 hover:border-green-300'
                                 }`}
                               >
                                 {slot.time}
@@ -280,7 +282,6 @@ export default function Appointment() {
                   </motion.div>
                 )}
 
-                {/* Step 1 */}
                 {step === 1 && (
                   <motion.div
                     key="s1"
@@ -290,7 +291,9 @@ export default function Appointment() {
                     className="space-y-5"
                   >
                     <div>
-                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Ваше имя *</label>
+                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        Ваше имя *
+                      </label>
                       <input
                         type="text"
                         value={formData.name}
@@ -301,7 +304,9 @@ export default function Appointment() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Телефон *</label>
+                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        Телефон *
+                      </label>
                       <input
                         type="tel"
                         value={formData.phone}
@@ -312,7 +317,9 @@ export default function Appointment() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Email</label>
+                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        Email
+                      </label>
                       <input
                         type="email"
                         value={formData.email}
@@ -326,12 +333,16 @@ export default function Appointment() {
                       <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                         <MapPin className="w-3 h-3" /> Город
                       </label>
-                      <div className="px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 font-medium">{city}</div>
+                      <div className="px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 font-medium">
+                        {city}
+                      </div>
                       <p className="text-[11px] text-gray-500 mt-2">Работаем по Минску и Минской области.</p>
                     </div>
 
                     <div>
-                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Адрес</label>
+                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        Адрес
+                      </label>
                       <input
                         type="text"
                         value={formData.address}
@@ -342,7 +353,9 @@ export default function Appointment() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Комментарий</label>
+                      <label className="text-xs font-display font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        Комментарий
+                      </label>
                       <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -367,7 +380,6 @@ export default function Appointment() {
                   </motion.div>
                 )}
 
-                {/* Step 2 */}
                 {step === 2 && (
                   <motion.div
                     key="s2"
@@ -381,12 +393,19 @@ export default function Appointment() {
                     <div className="space-y-3 p-5 rounded-xl bg-green-50/50 border border-green-200/50">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Тип</span>
-                        <span className="text-gray-900 font-medium">{APPOINTMENT_TYPES.find((t) => t.value === appointmentType)?.label}</span>
+                        <span className="text-gray-900 font-medium">
+                          {APPOINTMENT_TYPES.find((t) => t.value === appointmentType)?.label}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Дата</span>
                         <span className="text-gray-900 font-medium">
-                          {selectedDate?.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}
+                          {selectedDate?.toLocaleDateString('ru-RU', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">

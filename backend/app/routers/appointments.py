@@ -15,22 +15,19 @@ def _to_naive_utc(dt: datetime) -> datetime:
     чтобы корректно сравнивать/хранить в SQLite и не ловить TypeError.
     """
     if dt.tzinfo is None:
-        # если пришло без таймзоны — считаем, что это уже UTC
         return dt
     return dt.astimezone(timezone.utc).replace(tzinfo=None)
 
 
-@router.post("/", response_model=AppointmentOut)
+@router.post("", response_model=AppointmentOut)
+@router.post("/", response_model=AppointmentOut, include_in_schema=False)
 def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
-    # ✅ Нормализуем дату (из ISO с Z приходит aware datetime)
     appointment_dt = _to_naive_utc(data.appointment_date)
     now_utc = datetime.utcnow()
 
-    # Проверка что дата в будущем
     if appointment_dt <= now_utc:
         raise HTTPException(status_code=400, detail="Дата записи должна быть в будущем")
 
-    # Проверка доступности слота (не более 3 записей на один час)
     slot_start = appointment_dt.replace(minute=0, second=0, microsecond=0)
     slot_end = slot_start + timedelta(hours=1)
 
@@ -51,7 +48,7 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
         client_name=data.client_name,
         client_phone=data.client_phone,
         client_email=data.client_email,
-        appointment_date=appointment_dt,  # ✅ сохраняем нормализованную дату
+        appointment_date=appointment_dt,
         appointment_type=data.appointment_type,
         address=data.address,
         city=data.city,
@@ -65,7 +62,6 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
 
 @router.get("/available-slots")
 def get_available_slots(date: str, db: Session = Depends(get_db)):
-    """Получить доступные слоты на указанную дату."""
     try:
         target_date = datetime.strptime(date, "%Y-%m-%d")
     except ValueError:
@@ -74,7 +70,7 @@ def get_available_slots(date: str, db: Session = Depends(get_db)):
     now_utc = datetime.utcnow()
 
     slots = []
-    for hour in range(9, 19):  # 9:00 - 18:00
+    for hour in range(9, 19):
         slot_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
         if slot_time < now_utc:
             continue

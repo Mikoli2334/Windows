@@ -19,7 +19,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV BACKEND_URL=http://backend:8000
 
-# ✅ ВАЖНО: чтобы nginx мог подключиться, слушаем на всех интерфейсах
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 

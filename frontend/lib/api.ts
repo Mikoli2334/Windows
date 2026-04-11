@@ -1,8 +1,9 @@
 // frontend/lib/api.ts
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE = '';
+
+console.log('api.ts loaded, API_BASE =', API_BASE);
 
 function formatFastApiDetail(detail: any): string {
-  // FastAPI 422 обычно: { detail: [{ loc: [...], msg: "...", type: "..." }, ...] }
   if (Array.isArray(detail)) {
     return detail
       .map((d) => {
@@ -24,6 +25,7 @@ function formatFastApiDetail(detail: any): string {
 
 export async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
+  console.log('FETCH URL FROM api.ts =', url);
 
   const res = await fetch(url, {
     headers: {
@@ -55,7 +57,7 @@ export const api = {
     }),
 
   createOrder: (data: OrderRequest) =>
-    fetchAPI<OrderResponse>('/api/orders/', {
+    fetchAPI<OrderResponse>('/api/orders', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -64,12 +66,11 @@ export const api = {
     fetchAPI<SlotsResponse>(`/api/appointments/available-slots?date=${date}`),
 
   createAppointment: (data: AppointmentRequest) =>
-    fetchAPI<AppointmentResponse>('/api/appointments/', {
+    fetchAPI<AppointmentResponse>('/api/appointments', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  // ✅ Telegram leads
   sendConstructorLead: (data: ConstructorLeadRequest) =>
     fetchAPI<{ ok: true }>('/api/leads/constructor', {
       method: 'POST',
@@ -84,6 +85,15 @@ export const api = {
 
   sendContactLead: (data: ContactLeadRequest) =>
     fetchAPI<{ ok: true }>('/api/leads/contact', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getReviews: (limit?: number) =>
+    fetchAPI<ReviewResponse[]>(limit ? `/api/reviews?limit=${limit}` : '/api/reviews'),
+
+  createReview: (data: ReviewCreateRequest) =>
+    fetchAPI<ReviewResponse>('/api/reviews', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -209,9 +219,29 @@ export interface AppointmentLeadRequest {
   name: string;
   phone: string;
   appointment_type: string;
-  appointment_date: string; // ISO
+  appointment_date: string;
   city: string;
   address?: string;
   email?: string;
   notes?: string;
+}
+
+// ──────────────────────────────
+// Reviews
+// ──────────────────────────────
+export interface ReviewCreateRequest {
+  name: string;
+  city?: string;
+  rating: number;
+  text: string;
+}
+
+export interface ReviewResponse {
+  id: number;
+  name: string;
+  city?: string;
+  rating: number;
+  text: string;
+  is_approved: boolean;
+  created_at: string;
 }

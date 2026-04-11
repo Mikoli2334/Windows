@@ -88,3 +88,14 @@ class ContactRequest(Base):
     email = Column(String(200))
     message = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    city = Column(String(100), nullable=True)
+    rating = Column(Integer, nullable=False, default=5)
+    text = Column(Text, nullable=False)
+    is_approved = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
