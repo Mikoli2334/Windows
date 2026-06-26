@@ -6,6 +6,10 @@ import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, Loader2, AlertTriangle 
 import { AnimateIn } from '../ui/AnimateIn';
 import { api } from '@/lib/api';
 
+const PHONE_DISPLAY = '+375 (29) 366-49-65';
+const PHONE_HREF = 'tel:+375293664965';
+const EMAIL = 'evlonm2025@gmail.com';
+
 export default function Contacts() {
   const [form, setForm] = useState({ name: '', phone: '+375', email: '', message: '' });
   const [loading, setLoading] = useState(false);
@@ -36,18 +40,18 @@ export default function Contacts() {
   };
 
   const CONTACTS = [
-    { icon: Phone, label: 'Телефон', value: '+375 (29) 123-45-67', href: 'tel:+375291234567' },
-    { icon: Mail, label: 'Email', value: 'info@eurookna.by', href: 'mailto:info@eurookna.by' },
-    { icon: MapPin, label: 'Офис', value: 'г. Минск, ул. Победителей, 1', href: '#' },
+    { icon: Phone, label: 'Телефон', value: PHONE_DISPLAY, href: PHONE_HREF },
+    { icon: Mail, label: 'Email', value: EMAIL, href: `mailto:${EMAIL}` },
+    { icon: MapPin, label: 'Офис', value: 'г. Минск, ул. Чкалова, д. 1, корпус 2, оф. 30', href: '#' },
     { icon: Clock, label: 'Режим работы', value: 'Пн–Пт 9:00–18:00, Сб 10:00–15:00', href: '#' },
   ];
 
   return (
-    <section id="contacts" className="py-24 sm:py-32 relative gradient-bg">
+    <section id="contacts" className="py-20 sm:py-32 relative gradient-bg">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent" />
 
       <div className="section-container">
-        <AnimateIn className="text-center mb-16">
+        <AnimateIn className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-display font-semibold tracking-[0.2em] uppercase text-green-600 mb-4 block">
             Связь
           </span>
@@ -59,27 +63,28 @@ export default function Contacts() {
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Contact info */}
           <AnimateIn direction="left">
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {CONTACTS.map(({ icon: Icon, label, value, href }) => (
                 <a
                   key={label}
                   href={href}
                   className="flex items-start gap-4 group p-4 rounded-xl hover:bg-green-50/50 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 group-hover:bg-green-100 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center shrink-0 group-hover:bg-green-100 transition-colors">
                     <Icon className="w-5 h-5 text-green-600" />
                   </div>
-                  <div>
+
+                  <div className="min-w-0">
                     <div className="text-xs text-gray-500 mb-1">{label}</div>
-                    <div className="text-gray-900 font-medium">{value}</div>
+                    <div className="text-gray-900 font-medium break-words">{value}</div>
                   </div>
                 </a>
               ))}
 
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-50/50 border border-green-200/50">
+              <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-50/50 border border-green-200/50">
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Работаем по всей Минской области.
-                  Бесплатный выезд мастера на замер в пределах 50 км от областного центра.
+                  Работаем по всей Минской области. Бесплатный выезд мастера на замер в пределах
+                  50 км от областного центра.
                 </p>
               </div>
             </div>
@@ -87,11 +92,13 @@ export default function Contacts() {
 
           {/* Contact form */}
           <AnimateIn direction="right" delay={0.2}>
-            <div className="glass-card glow-border rounded-2xl p-8">
+            <div className="glass-card glow-border rounded-2xl p-5 sm:p-8">
               {sent ? (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="font-display font-semibold text-lg text-gray-900 mb-2">Заявка отправлена!</h3>
+                  <h3 className="font-display font-semibold text-lg text-gray-900 mb-2">
+                    Заявка отправлена!
+                  </h3>
                   <p className="text-gray-600 text-sm">Мы свяжемся с вами в ближайшее время.</p>
 
                   <button
@@ -107,7 +114,9 @@ export default function Contacts() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <h3 className="font-display font-semibold text-lg text-gray-900 mb-2">Обратная связь</h3>
+                  <h3 className="font-display font-semibold text-lg text-gray-900 mb-2">
+                    Обратная связь
+                  </h3>
 
                   <input
                     type="text"
@@ -145,7 +154,7 @@ export default function Contacts() {
 
                   {error && (
                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 mt-0.5" />
+                      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                       <span>{error}</span>
                     </div>
                   )}

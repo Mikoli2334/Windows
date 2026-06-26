@@ -1,6 +1,8 @@
+// frontend/components/sections/WindowTypes.tsx
+
 'use client';
 
-import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
 import { AnimateIn, StaggerContainer, StaggerItem } from '../ui/AnimateIn';
 import { ChevronRight } from 'lucide-react';
 
@@ -10,7 +12,7 @@ interface WindowTypeDef {
   desc: string;
   price: string;
   sections: number;
-  svgContent: JSX.Element;
+  svgContent: ReactNode;
 }
 
 const WINDOW_TYPES: WindowTypeDef[] = [
@@ -125,19 +127,35 @@ const WINDOW_TYPES: WindowTypeDef[] = [
 
 export default function WindowTypes() {
   return (
-    // ✅ добавили grid-glow-bg (его CSS уже должен быть в globals.css)
-    <section id="types" className="py-24 sm:py-32 relative gradient-bg grid-glow-bg">
+    <section
+      id="types"
+      className="py-24 sm:py-32 relative overflow-hidden bg-white"
+    >
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/backgrounds/window-types-bg.png')" }}
+        aria-hidden="true"
+      />
+
+      {/* Lighter overlay: background is more visible now */}
+      <div
+        className="absolute inset-0 bg-white/35"
+        aria-hidden="true"
+      />
+
+      {/* Top divider */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent" />
 
-      <div className="section-container">
+      <div className="section-container relative z-10">
         <AnimateIn className="text-center mb-16">
-          <span className="text-xs font-display font-semibold tracking-[0.2em] uppercase text-green-600 mb-4 block">
+          <span className="text-xs font-display font-semibold tracking-[0.2em] uppercase text-green-700 mb-4 block">
             Каталог
           </span>
           <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-gray-900 mb-4">
             Типы окон
           </h2>
-          <p className="text-gray-600 max-w-xl mx-auto">
+          <p className="text-gray-700 max-w-xl mx-auto">
             Выберите подходящий тип и настройте в конструкторе под ваши размеры
           </p>
         </AnimateIn>
@@ -147,20 +165,24 @@ export default function WindowTypes() {
             <StaggerItem key={wt.slug}>
               <a
                 href="#constructor"
-                className="glass-card rounded-2xl p-6 block group hover:shadow-xl hover:border-green-200 transition-all duration-500"
+                className="glass-card rounded-2xl p-6 block group hover:shadow-xl hover:border-green-200 transition-all duration-500 bg-white/95 backdrop-blur-sm"
               >
                 <div className="h-40 flex items-center justify-center text-gray-300 group-hover:text-green-500/60 transition-colors duration-500 mb-6">
                   {wt.svgContent}
                 </div>
 
-                <div className="flex items-end justify-between">
+                <div className="flex items-end justify-between gap-4">
                   <div>
-                    <h3 className="font-display font-semibold text-lg text-gray-900 mb-1">{wt.name}</h3>
+                    <h3 className="font-display font-semibold text-lg text-gray-900 mb-1">
+                      {wt.name}
+                    </h3>
                     <p className="text-sm text-gray-600">{wt.desc}</p>
                   </div>
 
-                  <div className="text-right">
-                    <div className="font-display font-bold text-green-600">{wt.price}</div>
+                  <div className="text-right shrink-0">
+                    <div className="font-display font-bold text-green-600">
+                      {wt.price}
+                    </div>
                     <div className="flex items-center justify-end gap-1 text-xs text-gray-500 mt-1 group-hover:text-green-600 transition-colors">
                       Выбрать <ChevronRight className="w-3 h-3" />
                     </div>

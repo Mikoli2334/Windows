@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Menu, X, ChevronRight } from 'lucide-react';
 
+const PHONE_DISPLAY = '+375 (29) 366-49-65';
+const PHONE_HREF = 'tel:+375293664965';
+
 const NAV_ITEMS = [
   { href: '#advantages', label: 'Преимущества' },
   { href: '#types', label: 'Типы окон' },
   { href: '#services', label: 'Услуги' },
+  { href: '#articles', label: 'Статьи' },
   { href: '#constructor', label: 'Конструктор' },
   { href: '#process', label: 'Как мы работаем' },
   { href: '#appointment', label: 'Запись' },
@@ -33,12 +37,12 @@ export default function Header() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? 'py-3 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg'
-            : 'py-5 bg-transparent'
+            : 'py-4 bg-white/80 backdrop-blur-md sm:bg-transparent'
         }`}
       >
-        <div className="section-container flex items-center justify-between">
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10">
+        <div className="section-container flex items-center justify-between gap-4">
+          <a href="#" className="flex items-center gap-3 group min-w-0">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 shrink-0">
               <svg viewBox="0 0 40 40" className="w-full h-full">
                 <rect
                   x="4"
@@ -62,8 +66,9 @@ export default function Header() {
                 </defs>
               </svg>
             </div>
-            <div>
-              <span className="font-display font-bold text-lg tracking-tight text-gray-900">
+
+            <div className="min-w-0">
+              <span className="font-display font-bold text-base sm:text-lg tracking-tight text-gray-900 whitespace-nowrap">
                 Эвлон-<span className="text-green-600">М</span>
               </span>
               <span className="block text-[10px] text-gray-500 font-medium tracking-widest uppercase">
@@ -86,11 +91,11 @@ export default function Header() {
 
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="tel:+375291234567"
+              href={PHONE_HREF}
               className="flex items-center gap-2 text-sm text-gray-700 hover:text-green-600 transition-colors"
             >
               <Phone className="w-4 h-4" />
-              +375 (29) 123-45-67
+              {PHONE_DISPLAY}
             </a>
             <a href="#constructor" className="btn-primary text-xs !py-3 !px-6">
               Рассчитать стоимость
@@ -99,9 +104,10 @@ export default function Header() {
           </div>
 
           <button
-            className="lg:hidden p-2 text-gray-700"
+            className="lg:hidden w-11 h-11 shrink-0 rounded-xl border-2 border-green-500 bg-white text-gray-800 flex items-center justify-center shadow-sm"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Меню"
+            type="button"
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -111,42 +117,45 @@ export default function Header() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white pt-24 px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-white lg:hidden overflow-y-auto"
           >
-            <nav className="flex flex-col gap-2">
-              {NAV_ITEMS.map((item, i) => (
-                <motion.a
-                  key={item.href}
-                  href={item.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  onClick={() => setMobileOpen(false)}
-                  className="py-4 px-4 text-lg font-display font-medium text-gray-800 hover:text-green-600 border-b border-gray-100 transition-colors"
-                >
-                  {item.label}
-                </motion.a>
-              ))}
-            </nav>
+            <div className="section-container pt-24 pb-8">
+              <nav className="flex flex-col">
+                {NAV_ITEMS.map((item, i) => (
+                  <motion.a
+                    key={item.href}
+                    href={item.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => setMobileOpen(false)}
+                    className="py-4 text-xl font-display font-medium text-gray-800 hover:text-green-600 border-b border-gray-100 transition-colors"
+                  >
+                    {item.label}
+                  </motion.a>
+                ))}
+              </nav>
 
-            <div className="mt-8 space-y-4">
-              <a
-                href="tel:+375291234567"
-                className="flex items-center gap-3 text-green-600 font-medium"
-              >
-                <Phone className="w-5 h-5" />
-                +375 (29) 123-45-67
-              </a>
-              <a
-                href="#constructor"
-                onClick={() => setMobileOpen(false)}
-                className="btn-primary block text-center"
-              >
-                Рассчитать стоимость
-              </a>
+              <div className="mt-8 space-y-4">
+                <a
+                  href={PHONE_HREF}
+                  className="flex items-center gap-3 text-green-600 font-medium text-lg"
+                >
+                  <Phone className="w-5 h-5" />
+                  {PHONE_DISPLAY}
+                </a>
+
+                <a
+                  href="#constructor"
+                  onClick={() => setMobileOpen(false)}
+                  className="btn-primary w-full flex items-center justify-center text-center"
+                >
+                  Рассчитать стоимость
+                </a>
+              </div>
             </div>
           </motion.div>
         )}

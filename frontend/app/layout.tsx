@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 addressLocality: 'Минск',
                 addressCountry: 'BY',
               },
-              telephone: '+375-29-123-45-67',
+              telephone: '+375-29-366-49-65',
               openingHours: 'Mo-Fr 09:00-18:00, Sa 10:00-15:00',
               priceRange: 'BYN $$',
               areaServed: 'Беларусь',

@@ -3,6 +3,7 @@ import Hero from '@/components/sections/Hero';
 import Advantages from '@/components/sections/Advantages';
 import WindowTypes from '@/components/sections/WindowTypes';
 import Services from '@/components/sections/Services';
+import Articles from '@/components/sections/Articles';
 import WindowConstructor from '@/components/sections/WindowConstructor';
 import Process from '@/components/sections/Process';
 import Reviews from '@/components/sections/Reviews';
@@ -19,6 +20,7 @@ export default function HomePage() {
         <Advantages />
         <WindowTypes />
         <Services />
+        <Articles />
         <WindowConstructor />
         <Process />
         <Reviews />
